@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使いましたボタン</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; margin-top: 50px; }
+        #counter { font-size: 3rem; font-weight: bold; color: #333; margin: 20px; }
+        #btn { font-size: 1.5rem; padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
+        #btn:active { background: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <h1>使いました…</h1>
+    <div id="counter">読み込み中...</div>
+    <button id="btn">負けました…</button>
+
+    <script type="module">
+        // 1. 必要な機能をCDNから読み込む（重複を削除しました）
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // 2. あなたのFirebase設定情報
+        const firebaseConfig = {
+            apiKey: "AIzaSyCpUhJUWGJx0oyDOaDiZLbRUQY5n0lT--k",
+            authDomain: "bottan-6253b.firebaseapp.com",
+            databaseURL: "https://bottan-6253b-default-rtdb.firebaseio.com",
+            projectId: "bottan-6253b",
+            storageBucket: "bottan-6253b.firebasestorage.app",
+            messagingSenderId: "263418267426",
+            appId: "1:263418267426:web:8ba325ae2b54d6c1f8877b",
+            measurementId: "G-FNG3J5F8ED"
+        };
+
+        // 3. Firebaseとデータベースの初期化（1回だけに整理しました）
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const countRef = ref(db, 'count');
+
+        const counterEl = document.getElementById("counter");
+        const btnEl = document.getElementById("btn");
+
+        // 4. リアルタイムでデータを監視
+        onValue(countRef, (snapshot) => {
+            const data = snapshot.val();
+            counterEl.innerText = data !== null ? data : 0;
+        });
+
+        // 5. ボタンが押されたら数値を+1する
+        btnEl.addEventListener("click", () => {
+            runTransaction(countRef, (currentValue) => {
+                return (currentValue || 0) + 1;
+            });
+        });
+    </script>
+</body>
+</html>
